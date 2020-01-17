@@ -422,6 +422,10 @@ images_iter  <- flow_images_from_data(img1,
               save_prefix = "shift", save_format = "png") 
 reticulate::iter_next(images_iter) 
 
+reticulate::use_python("C:\\Users\\ywlon\\AppData\\Local\\r-miniconda", required = TRUE)
+library(keras) 
+library(tensorflow)
+
 datagen <- image_data_generator( 
    rotation_range = 20, 
    width_shift_range = 0.2, 
