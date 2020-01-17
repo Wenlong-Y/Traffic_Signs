@@ -383,3 +383,59 @@ library(caret)
  #data augumentation
  
  
+ #used these to solve some history problems in github. or clone can be used too.
+ #rm -rf .git
+ #git init
+ #git remote add origin https://github.com/Wenlong-Y/Traffic_Signs
+ #git pull --allow-unrelated-histories   
+ #git push origin master
+ 
+ 
+training_path <- "GTSRB/Final_Training/Images/"
+
+img<-image_load(paste(training_path, "00018/00001_00004.ppm", sep="")) 
+img1<-image_to_array(img) 
+dim(img1)<-c(1,dim(img1)) 
+
+#sign flipping
+system("mkdir augmented")
+images_iter  <- flow_images_from_data(img1, , generator =  
+                                        image_data_generator(horizontal_flip = TRUE), 
+                                        save_to_dir = 'augmented', 
+                                        save_prefix = "horizontal", save_format = "png") 
+reticulate::iter_next(images_iter) 
+
+#sign rotation by 20 degree
+img<-image_load(paste(training_path, "00020/00002_00017.ppm", sep="")) 
+img1<-image_to_array(img) 
+dim(img1)<-c(1,dim(img1)) 
+images_iter  <- flow_images_from_data(img1, , generator =         
+                image_data_generator(rotation_range = 20), 
+                save_to_dir = 'augmented', 
+                save_prefix = "rotation", save_format = "png") 
+reticulate::iter_next(images_iter) 
+
+#shifting by 20%
+images_iter  <- flow_images_from_data(img1,                                      
+              generator=image_data_generator(width_shift_range=0.2,                                                                         
+              height_shift_range=0.2), save_to_dir = 'augmented', 
+              save_prefix = "shift", save_format = "png") 
+reticulate::iter_next(images_iter) 
+
+datagen <- image_data_generator( 
+   rotation_range = 20, 
+   width_shift_range = 0.2, 
+   height_shift_range = 0.2, 
+   horizontal_flip = FALSE 
+ ) 
+
+datagen %>% fit_image_data_generator(x_train_1) 
+
+model_2 <- init_cnn_dropout() 
+model_2 %>% fit_generator( 
+  flow_images_from_data(x_train_1, y_train_1,  
+   datagen, batch_size = 100), 
+   steps_per_epoch = as.integer(50000/100),  
+   epochs = 30,  
+   validation_data = list(x_test_1, y_test_1) 
+) 
